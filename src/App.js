@@ -117,6 +117,8 @@ class App extends React.Component {
     // this.setState({listaProdutos: listaFiltrada})
   }
 
+
+  
   filtraMaximo = (event) => {
     this.setState({ filtroMax: event.target.value })
   }
