@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import styled from 'styled-components'
-import Produtos from './Components/Produtos/Produtos'
+// import Produtos from './Components/Produtos/Produtos'
 // import ItemCarrinho from './Components/ItemCarrinho/ItemCarrinho'
 
 const MainContainer = styled.div`
@@ -40,7 +40,16 @@ display: flex;
 flex-wrap:wrap;
 gap: 5px;
 `
+const Produtos = styled.div`
+display: flex;
+flex-direction: column;
+/* width: 25%; */
 
+img {
+    width:200px;
+    height: 200px;
+}
+`
 
 
 class App extends React.Component {
@@ -49,37 +58,37 @@ class App extends React.Component {
     listaProdutos: [
       {
         id: 1,
-        name: "viagem para lua",
+        name: "Viagem para lua",
         value: 10000.0,
         imageUrl: "https://bioscopic.files.wordpress.com/2008/01/moon.jpg",
       },
       {
         id: 2,
-        name: "viagem para marte",
+        name: "Viagem para marte",
         value: 30000.0,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/800px-OSIRIS_Mars_true_color.jpg",
       },
       {
         id: 3,
-        name: "viagem para venus",
+        name: "Viagem para venus",
         value: 35000.0,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/85/Venus_globe.jpg",
       },
       {
         id: 4,
-        name: "viagem só de ida para sol",
+        name: "Viagem só de ida para sol",
         value: 50000.0,
         imageUrl: "https://stcotvfoco.com.br/2017/03/mira-el-antes-y-despues-del-sol-de-los-teletubbies-01.jpg",
       },
       {
         id: 5,
-        name: "visitação em buraco negro",
+        name: "Tour em buraco negro",
         value: 900000.0,
         imageUrl: "https://ibcdn.canaltech.com.br/yuxagEBwKbCP_kyKwD17behqE-o=/660x0/smart/i360616.jpeg",
       },
       {
         id: 6,
-        name: "pacote plus - aos limites do universo",
+        name: "Pacote Premium - aos limites do universo",
         value: 9999999.0,
         imageUrl: "http://www.reactiongifs.com/wp-content/uploads/2013/10/tim-and-eric-mind-blown.gif",
       }
@@ -108,28 +117,12 @@ class App extends React.Component {
   }
 
   filtraMinimo = (event) => {
-    
-    this.setState({ filtroMin: event.target.value }) 
-    const listaFiltrada = []
-    this.state.listaCompleta.filter((produto) => { 
-      if (produto.value >= this.state.filtroMin){
-        listaFiltrada.push(produto)
-      }
-      return listaFiltrada
-    })
-    this.state.filtroMin != 0 ? this.setState({listaProdutos: listaFiltrada}) : this.setState({listaProdutos: [...this.state.listaCompleta]})    
+    this.setState({ filtroMin: event.target.value })
   }
 
   filtraMaximo = (event) => {
     this.setState({ filtroMax: event.target.value })
-    const listaFiltrada = []
-    this.state.listaCompleta.filter((produto) => { 
-      if (produto.value <= this.state.filtroMax){
-        listaFiltrada.push(produto)
-      }
-      return listaFiltrada
-    })
-    this.state.filtroMax != 0 ? this.setState({listaProdutos: listaFiltrada}) : this.setState({listaProdutos: [...this.state.listaCompleta]}) 
+    
   }
 
   filtraNome = (event) => {
@@ -137,12 +130,46 @@ class App extends React.Component {
     console.log(this.state.filtroNome)
   }
 
+  // adicionaCarrinho = (produto) => {
+  //   const listaCarrinho = []
+  //   this.
+
+  // }
+
   componentDidMount() {
     const listaCompleta = [...this.state.listaProdutos]
     this.setState({ listaCompleta: listaCompleta })
   }
 
   render() {
+    const listaExibição = this.state.listaProdutos.map((produto) => {
+      return (
+        <Produtos key={produto.nome}>
+          <img src={produto.imageUrl} />
+          <h5>{produto.name}</h5>
+          <h5> R$: {produto.value}</h5>
+          {/* <button onClick={() => adicionaCarrinho(produto)}>Adicionar ao Carrinho</button> */}
+        </Produtos>
+      );
+    })
+
+    // let listaFiltrada = []
+    // this.state.listaCompleta.filter((produto) => {
+    //   if (produto.value >= this.state.filtroMin) {
+    //     listaFiltrada.push(produto)
+    //   }
+    //   return listaFiltrada
+    // })
+    // this.state.filtroMin != 0 ? this.setState({ listaProdutos: listaFiltrada }) : this.setState({ listaProdutos: [...this.state.listaCompleta] })
+
+    // this.state.listaCompleta.filter((produto) => {
+    //   if (produto.value <= this.state.filtroMax) {
+    //     listaFiltrada.push(produto)
+    //   }
+    //   return listaFiltrada
+    // })
+    // this.state.filtroMax != 0 ? this.setState({ listaProdutos: listaFiltrada }) : this.setState({ listaProdutos: [...this.state.listaCompleta] })
+
     return (
       <MainContainer>
 
@@ -175,14 +202,7 @@ class App extends React.Component {
 
           </ContainerIndiceCentral>
           <ContainerProdutos>
-            {this.state.listaProdutos.map((produto) => {
-              return <Produtos
-                key={produto.id}
-                nome={produto.name}
-                valor={produto.value}
-                imagem={produto.imageUrl}
-              />
-            })}
+            {listaExibição}
           </ContainerProdutos>
         </ContainerCentral>
 
