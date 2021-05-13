@@ -43,18 +43,17 @@ gap: 5px;
 const Produtos = styled.div`
 display: flex;
 flex-direction: column;
-/* width: 25%; */
 
 img {
     width:200px;
     height: 200px;
 }
 `
-
-
+const ItemCarrinho = styled.div`
+display: flex;
+`
 class App extends React.Component {
   state = {
-    listaCompleta: [],
     listaProdutos: [
       {
         id: 1,
@@ -95,84 +94,87 @@ class App extends React.Component {
     ],
     listaCarrinho: [],
     ordenacao: "CRESCENTE",
-    filtroMin: 0,
-    filtroMax: Infinity,
+    filtroMin: "",
+    filtroMax: "",
     filtroNome: ""
   }
 
   ordenaLista = (event) => {
-    this.setState({ ordenacao: event.target.value })
-    let novaLista = []
-    switch (this.state.ordenacao) {
-      case ("DECRESCENTE"):
-        novaLista = [...this.state.listaProdutos]
-        this.setState({ listaProdutos: novaLista.sort((a, b) => { return a.value - b.value; }) })
-        break;
-      case ("CRESCENTE"):
-        novaLista = [...this.state.listaProdutos]
-        this.setState({ listaProdutos: novaLista.sort((a, b) => { return b.value - a.value; }) })
-        break;
-      default: console.log("deu ruim")
-    }
+    this.setState({ ordenacao: event.target.value })   
   }
 
   filtraMinimo = (event) => {
-    this.setState({ filtroMin: event.target.value })
+    this.setState({ filtroMin: event.target.value })  
   }
 
   filtraMaximo = (event) => {
     this.setState({ filtroMax: event.target.value })
-    
   }
 
   filtraNome = (event) => {
     this.setState({ filtroNome: event.target.value })
-    console.log(this.state.filtroNome)
   }
 
-  // adicionaCarrinho = (produto) => {
-  //   const listaCarrinho = []
-  //   this.
-
-  // }
-
-  componentDidMount() {
-    const listaCompleta = [...this.state.listaProdutos]
-    this.setState({ listaCompleta: listaCompleta })
+  adicionaCarrinho = (produto) => {
+    const itemCarrinho = {
+      name: produto.name,
+      value: produto.value,
+      quantidade: 1
+    }
+    const carrinho = [...this.state.listaCarrinho, itemCarrinho]
+    this.setState({ listaCarrinho: carrinho })
   }
 
+  ordenaFiltro = () => {
+    let valorMin
+    let valorMax
+      if (this.state.filtroMin != ""){
+        valorMin = this.state.filtroMin 
+      } else {valorMin = -Infinity }
+
+      if (this.state.filtroMax != ""){
+        valorMax = this.state.filtroMax 
+      } else { valorMax = Infinity }
+      
+    return this.state.listaProdutos
+    .filter(produto => produto.value >= valorMin)
+    .filter(produto => produto.value <= valorMax)
+    .filter(produto => produto.name.includes(this.state.filtroNome))
+    .sort((a, b) => {
+      switch (this.state.ordenacao) {
+        case ("CRESCENTE"):
+          return a.value - b.value;           
+        case ("DECRESCENTE"):
+          return b.value - a.value;          
+        default: console.log("deu ruim")
+      }
+    })
+  }
+ 
   render() {
-    const listaExibição = this.state.listaProdutos.map((produto) => {
+    const listaExibicao =  this.ordenaFiltro().map((produto) => {
       return (
-        <Produtos key={produto.nome}>
+        <Produtos key={produto.name}>
           <img src={produto.imageUrl} />
           <h5>{produto.name}</h5>
           <h5> R$: {produto.value}</h5>
-          {/* <button onClick={() => adicionaCarrinho(produto)}>Adicionar ao Carrinho</button> */}
+          <button onClick={() => this.adicionaCarrinho(produto)}>Adicionar ao Carrinho</button>
         </Produtos>
       );
     })
 
-    // let listaFiltrada = []
-    // this.state.listaCompleta.filter((produto) => {
-    //   if (produto.value >= this.state.filtroMin) {
-    //     listaFiltrada.push(produto)
-    //   }
-    //   return listaFiltrada
-    // })
-    // this.state.filtroMin != 0 ? this.setState({ listaProdutos: listaFiltrada }) : this.setState({ listaProdutos: [...this.state.listaCompleta] })
-
-    // this.state.listaCompleta.filter((produto) => {
-    //   if (produto.value <= this.state.filtroMax) {
-    //     listaFiltrada.push(produto)
-    //   }
-    //   return listaFiltrada
-    // })
-    // this.state.filtroMax != 0 ? this.setState({ listaProdutos: listaFiltrada }) : this.setState({ listaProdutos: [...this.state.listaCompleta] })
+    const ListaExibicaoCarrinho = this.state.listaCarrinho.map((produto) => {
+      return (
+        <ItemCarrinho>
+          <p>{produto.quantidade}X </p>
+          <p>{produto.name}</p>
+          <button>Remover</button>
+        </ItemCarrinho>
+      )
+    })
 
     return (
       <MainContainer>
-
         <ContainerFiltros>
           <h3>Filtros</h3>
 
@@ -191,7 +193,7 @@ class App extends React.Component {
 
         <ContainerCentral>
           <ContainerIndiceCentral>
-            <p>Quantidade de produtos: {this.state.listaProdutos.length} </p>
+            <p>Quantidade de produtos: {this.ordenaFiltro().length} </p>
 
             <label>Ordenação:
               <select onChange={this.ordenaLista} >
@@ -202,21 +204,15 @@ class App extends React.Component {
 
           </ContainerIndiceCentral>
           <ContainerProdutos>
-            {listaExibição}
+            {listaExibicao}
           </ContainerProdutos>
         </ContainerCentral>
 
-
         <ContainerCarrinho>
           <h3>Carrinho:</h3>
-          {/* <ItemCarrinho  /> */}
-          <h3>Valor Total:</h3>
-
-
-
+          {ListaExibicaoCarrinho}
+          <h3>Valor Total: R$ {this.state.listaCarrinho.reduce((a, b) => a + b.value, 0)}</h3>
         </ContainerCarrinho>
-
-
       </MainContainer>
     )
   };
