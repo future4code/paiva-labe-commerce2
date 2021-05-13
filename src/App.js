@@ -94,25 +94,13 @@ class App extends React.Component {
     ],
     listaCarrinho: [],
     ordenacao: "CRESCENTE",
-    filtroMin: 0,
-    filtroMax: Infinity,
+    filtroMin: "",
+    filtroMax: "",
     filtroNome: ""
   }
 
   ordenaLista = (event) => {
-    this.setState({ ordenacao: event.target.value })
-    let novaLista = []
-    switch (this.state.ordenacao) {
-      case ("DECRESCENTE"):
-        novaLista = [...this.state.listaProdutos]
-        this.setState({ listaProdutos: novaLista.sort((a, b) => { return a.value - b.value; }) })
-        break;
-      case ("CRESCENTE"):
-        novaLista = [...this.state.listaProdutos]
-        this.setState({ listaProdutos: novaLista.sort((a, b) => { return b.value - a.value; }) })
-        break;
-      default: console.log("deu ruim")
-    }
+    this.setState({ ordenacao: event.target.value })   
   }
 
   filtraMinimo = (event) => {
@@ -138,10 +126,29 @@ class App extends React.Component {
   }
 
   ordenaFiltro = () => {
+    let valorMin
+    let valorMax
+      if (this.state.filtroMin != ""){
+        valorMin = this.state.filtroMin 
+      } else {valorMin = -Infinity }
+
+      if (this.state.filtroMax != ""){
+        valorMax = this.state.filtroMax 
+      } else { valorMax = Infinity }
+      
     return this.state.listaProdutos
-    .filter(produto => produto.value >= this.state.filtroMin)
-    .filter(produto => produto.value <= this.state.filtroMax)
+    .filter(produto => produto.value >= valorMin)
+    .filter(produto => produto.value <= valorMax)
     .filter(produto => produto.name.includes(this.state.filtroNome))
+    .sort((a, b) => {
+      switch (this.state.ordenacao) {
+        case ("CRESCENTE"):
+          return a.value - b.value;           
+        case ("DECRESCENTE"):
+          return b.value - a.value;          
+        default: console.log("deu ruim")
+      }
+    })
   }
  
   render() {
@@ -168,7 +175,6 @@ class App extends React.Component {
 
     return (
       <MainContainer>
-
         <ContainerFiltros>
           <h3>Filtros</h3>
 
@@ -187,7 +193,7 @@ class App extends React.Component {
 
         <ContainerCentral>
           <ContainerIndiceCentral>
-            <p>Quantidade de produtos: {this.state.listaProdutos.length} </p>
+            <p>Quantidade de produtos: {this.ordenaFiltro().length} </p>
 
             <label>Ordenação:
               <select onChange={this.ordenaLista} >
@@ -207,7 +213,6 @@ class App extends React.Component {
           {ListaExibicaoCarrinho}
           <h3>Valor Total: R$ {this.state.listaCarrinho.reduce((a, b) => a + b.value, 0)}</h3>
         </ContainerCarrinho>
-
       </MainContainer>
     )
   };
