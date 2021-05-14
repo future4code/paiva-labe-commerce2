@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css';
 import styled from 'styled-components'
+import img from './img/imgbg.png';
+import img2 from './img/imgbg2.png'
 // import Produtos from './Components/Produtos/Produtos'
 // import ItemCarrinho from './Components/ItemCarrinho/ItemCarrinho'
 
@@ -9,6 +11,7 @@ const MainContainer = styled.div`
  gap: 10px;
  justify-content: space-between;
  width: 100%;
+ background-color: lightgrey;
 `
 
 const ContainerFiltros = styled.div`
@@ -16,8 +19,12 @@ display: flex;
 flex-direction: column;
 border: 1px solid black;
 width: 20%;
+height: 100vh;
+background-image: url(${img});
+height: 100vh;
+color: white;
+padding: 10px;
 `
-
 const ContainerCentral = styled.div`
 display: flex;
 flex-direction: column;
@@ -29,6 +36,9 @@ display: flex;
 flex-direction: column;
 border: 1px solid black;
 width: 20%;
+background-image: url(${img2});
+color: white;
+padding: 10px;
 `
 const ContainerIndiceCentral = styled.div`
 display: flex;
@@ -43,17 +53,23 @@ gap: 5px;
 const Produtos = styled.div`
 display: flex;
 flex-direction: column;
+border: 1px solid black;
+flex-wrap: wrap;
+align-items: center;
 
 img {
-    width:200px;
-    height: 200px;
+    width:250px;
+    height: 250px;
 }
 `
+
 const ItemCarrinho = styled.div`
 display: flex;
 `
+
 class App extends React.Component {
   state = {
+    listaCarrinho: [],
     listaProdutos: [
       {
         id: 1,
@@ -87,12 +103,29 @@ class App extends React.Component {
       },
       {
         id: 6,
-        name: "Pacote Premium - aos limites do universo",
+        name: "Aos limites do universo",
         value: 9999999.0,
         imageUrl: "http://www.reactiongifs.com/wp-content/uploads/2013/10/tim-and-eric-mind-blown.gif",
-      }
+      },
+      {
+        id: 7,
+        name: "Férias no Hotel Intergaláctico",
+        value: 475000.0,
+        imageUrl: "https://i.pinimg.com/564x/8e/a3/18/8ea318461bdb245c07500b29d6f3b7e5.jpg",
+      },
+      {
+        id: 8,
+        name: "Férias na Colônia Espacial",
+        value: 660000.0,
+        imageUrl: "https://i.pinimg.com/564x/7f/e2/94/7fe29480e5fd7991413b00d0d94bc54d.jpg",
+      },
+      {
+        id: 9,
+        name: "Tour pelo Sistema Solar",
+        value: 900500.0,
+        imageUrl: "https://i.pinimg.com/564x/db/80/58/db8058b2a7a337933c8819741d1f3961.jpg",
+      },
     ],
-    listaCarrinho: [],
     ordenacao: "CRESCENTE",
     filtroMin: "",
     filtroMax: "",
@@ -100,11 +133,11 @@ class App extends React.Component {
   }
 
   ordenaLista = (event) => {
-    this.setState({ ordenacao: event.target.value })   
+    this.setState({ ordenacao: event.target.value })
   }
 
   filtraMinimo = (event) => {
-    this.setState({ filtroMin: event.target.value })  
+    this.setState({ filtroMin: event.target.value })
   }
 
   filtraMaximo = (event) => {
@@ -116,43 +149,78 @@ class App extends React.Component {
   }
 
   adicionaCarrinho = (produto) => {
-    const itemCarrinho = {
-      name: produto.name,
-      value: produto.value,
-      quantidade: 1
+    const carrinhoTemp = this.state.listaCarrinho
+    const resultadoFiltro = carrinhoTemp.filter((item) => { return item.id === produto.id })
+
+    if (resultadoFiltro.length > 0) {
+      const somaCarrinho = carrinhoTemp.map((item) => {
+        if (resultadoFiltro[0].id === item.id) {
+          item.quantidade++
+          item.value += item.value
+        }
+        return item
+      })
+      this.setState({ listaCarrinho: somaCarrinho })
+    } else if (resultadoFiltro.length === 0) {
+      const itemCarrinho = {
+        id: produto.id,
+        name: produto.name,
+        value: produto.value,
+        quantidade: 1
+      }
+
+      const carrinho = [...this.state.listaCarrinho, itemCarrinho]
+      this.setState({ listaCarrinho: carrinho })
     }
-    const carrinho = [...this.state.listaCarrinho, itemCarrinho]
-    this.setState({ listaCarrinho: carrinho })
   }
 
   ordenaFiltro = () => {
     let valorMin
     let valorMax
-      if (this.state.filtroMin != ""){
-        valorMin = this.state.filtroMin 
-      } else {valorMin = -Infinity }
+    if (this.state.filtroMin != "") {
+      valorMin = this.state.filtroMin
+    } else { valorMin = -Infinity }
 
-      if (this.state.filtroMax != ""){
-        valorMax = this.state.filtroMax 
-      } else { valorMax = Infinity }
-      
+    if (this.state.filtroMax != "") {
+      valorMax = this.state.filtroMax
+    } else { valorMax = Infinity }
+
     return this.state.listaProdutos
-    .filter(produto => produto.value >= valorMin)
-    .filter(produto => produto.value <= valorMax)
-    .filter(produto => produto.name.includes(this.state.filtroNome))
-    .sort((a, b) => {
-      switch (this.state.ordenacao) {
-        case ("CRESCENTE"):
-          return a.value - b.value;           
-        case ("DECRESCENTE"):
-          return b.value - a.value;          
-        default: console.log("deu ruim")
-      }
-    })
+      .filter(produto => produto.value >= valorMin)
+      .filter(produto => produto.value <= valorMax)
+      .filter(produto => produto.name.includes(this.state.filtroNome))
+      .sort((a, b) => {
+        switch (this.state.ordenacao) {
+          case ("CRESCENTE"):
+            return a.value - b.value;
+          case ("DECRESCENTE"):
+            return b.value - a.value;
+          default: console.log("deu ruim")
+        }
+      })
   }
- 
+
+  removeItem = (id) => {
+    const novoCarrinho = this.state.listaCarrinho.filter((item) => { return id !== item.id})
+    this.setState({listaCarrinho: novoCarrinho})
+  }
+
+  // removeItem = (item) => {
+  //   const Carrinho = this.state.listaCarrinho.map((produto) => {
+  //     if (produto.id === item.id) {
+  //       if (item.quantide > 1) {
+  //         item.quantidade--
+  //         item.value -= item.value
+  //       } else if (item.quantide === 0) {
+  //         item.splice(0, 1)
+  //       }
+  //     }
+  //   })
+  //   this.setState({ listaCarrinho: Carrinho })
+  // }
+
   render() {
-    const listaExibicao =  this.ordenaFiltro().map((produto) => {
+    const listaExibicao = this.ordenaFiltro().map((produto) => {
       return (
         <Produtos key={produto.name}>
           <img src={produto.imageUrl} />
@@ -163,15 +231,19 @@ class App extends React.Component {
       );
     })
 
-    const ListaExibicaoCarrinho = this.state.listaCarrinho.map((produto) => {
-      return (
-        <ItemCarrinho>
-          <p>{produto.quantidade}X </p>
-          <p>{produto.name}</p>
-          <button>Remover</button>
-        </ItemCarrinho>
-      )
-    })
+    const ListaExibicaoCarrinho = this.state.listaCarrinho
+      .filter(function (a) {
+        return !this[JSON.stringify(a)] && (this[JSON.stringify(a)] = true);
+      }, Object.create(null))
+      .map((produto) => {
+        return (
+          <ItemCarrinho key={produto.id}>
+            <p>{produto.quantidade} X  </p>
+            <p>{produto.name}</p>
+            <button onClick={() => this.removeItem(produto.id)} >Remover</button>
+          </ItemCarrinho>
+        )
+      })
 
     return (
       <MainContainer>
@@ -213,7 +285,7 @@ class App extends React.Component {
           {ListaExibicaoCarrinho}
           <h3>Valor Total: R$ {this.state.listaCarrinho.reduce((a, b) => a + b.value, 0)}</h3>
         </ContainerCarrinho>
-      </MainContainer>
+      </MainContainer >
     )
   };
 }
