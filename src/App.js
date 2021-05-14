@@ -52,6 +52,7 @@ img {
 const ItemCarrinho = styled.div`
 display: flex;
 `
+
 class App extends React.Component {
   state = {
     listaProdutos: [
@@ -117,6 +118,7 @@ class App extends React.Component {
 
   adicionaCarrinho = (produto) => {
     const itemCarrinho = {
+      id: Date.now(),
       name: produto.name,
       value: produto.value,
       quantidade: 1
@@ -150,7 +152,12 @@ class App extends React.Component {
       }
     })
   }
- 
+
+  removeItem = (id) => {
+    const novoCarrinho = this.state.listaCarrinho.filter((item) => { return id !== item.id})
+    this.setState({listaCarrinho: novoCarrinho})
+  }
+
   render() {
     const listaExibicao =  this.ordenaFiltro().map((produto) => {
       return (
@@ -163,16 +170,18 @@ class App extends React.Component {
       );
     })
 
-    const ListaExibicaoCarrinho = this.state.listaCarrinho.map((produto) => {
+    const ListaExibicaoCarrinho = this.state.listaCarrinho
+    .filter(produto => produto.name == produto.name)
+    .map((produto) => {
       return (
         <ItemCarrinho>
-          <p>{produto.quantidade}X </p>
+          <p>{this.state.listaCarrinho.reduce((a, b) => a + b.quantidade, 0)}X </p>
           <p>{produto.name}</p>
-          <button>Remover</button>
+          <button onClick={() => this.removeItem(produto.id)} >Remover</button>
         </ItemCarrinho>
       )
     })
-
+      
     return (
       <MainContainer>
         <ContainerFiltros>
@@ -210,7 +219,7 @@ class App extends React.Component {
 
         <ContainerCarrinho>
           <h3>Carrinho:</h3>
-          {ListaExibicaoCarrinho}
+           {ListaExibicaoCarrinho}
           <h3>Valor Total: R$ {this.state.listaCarrinho.reduce((a, b) => a + b.value, 0)}</h3>
         </ContainerCarrinho>
       </MainContainer>
